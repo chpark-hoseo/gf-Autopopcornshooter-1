@@ -1,6 +1,7 @@
 
 #include "Game.h"
-
+#define CAT_SPRITE_WIDTH 128;
+#define CAT_SPRITE_HEIGHT 82;
 bool Game::init(const char* title, int xpos, int ypos, int width, int height, int flags)
 {
 	if (SDL_Init(SDL_INIT_EVERYTHING) == 0) {
@@ -13,20 +14,22 @@ bool Game::init(const char* title, int xpos, int ypos, int width, int height, in
 			if (m_pRenderer != 0) {
 				SDL_SetRenderDrawColor(m_pRenderer, 0, 0, 0, 255);
 
-				SDL_Surface* pTempSurface = SDL_LoadBMP("assets/rider.bmp");
+				SDL_Surface* pTempSurface = SDL_LoadBMP("assets/animate.bmp");
 				if (pTempSurface) {
 					printf("Texture Create Succes!");
 					//보조기억장치에 있는 파일을 주 기억장치로 불러옴(SDL_LoadBMP)
 					//주 기억장치에서 화면에 표시하도록 GPU에 올려출력하는 기능을 가진 texture을 생성
 					m_pTexture = SDL_CreateTextureFromSurface(m_pRenderer, pTempSurface);
 					SDL_FreeSurface(pTempSurface);
+					m_sourceRectangle.w = CAT_SPRITE_WIDTH;
+					m_sourceRectangle.h = CAT_SPRITE_HEIGHT;
 
-					SDL_QueryTexture(m_pTexture
-						, NULL
-						, NULL
-						, &m_sourceRectangle.w
-						, &m_sourceRectangle.h
-					);//texture의 크기 구하기(정하기?)
+					//SDL_QueryTexture(m_pTexture
+					//	, NULL
+					//	, NULL
+					//	, &m_sourceRectangle.w
+					//	, &m_sourceRectangle.h
+					//);//texture의 크기 구하기(정하기?)
 
 					m_destinationRectangle.w = m_sourceRectangle.w;
 					m_destinationRectangle.h = m_sourceRectangle.h;
@@ -60,6 +63,7 @@ void Game::update()
 {
 	//printf("Update!");
 	//SDL_SetRenderDrawColor(m_pRenderer, rand() % 256, rand() % 256, rand() % 256, 255);
+	m_sourceRectangle.x = 128 * ((SDL_GetTicks() / 100) % 6);
 	SDL_Delay(10);
 
 	
@@ -69,12 +73,7 @@ void Game::render()
 {
 	//printf("Render!");
 	SDL_RenderClear(m_pRenderer);
-	if (m_destinationRectangle.x < m_wWidth- m_destinationRectangle.w) {
-		m_destinationRectangle.x++;//우측으로 이동
-	}
-	else {
-		m_destinationRectangle.x--;//우측으로 이동
-	}
+
 	SDL_RenderCopy(m_pRenderer, m_pTexture, &m_sourceRectangle, &m_destinationRectangle);
 	SDL_RenderPresent(m_pRenderer);
 }
